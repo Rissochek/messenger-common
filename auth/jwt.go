@@ -17,7 +17,7 @@ type TokenClaims struct {
 type JWTManager struct {
 	SecretKey     string
 	TokenDuration time.Duration
-	logger *log.Logger
+	Logger *log.Logger
 }
 
 func NewJWTManager(token_duration time.Duration, secretKey string) *JWTManager {
@@ -31,7 +31,7 @@ func (manager *JWTManager) VerifyTokenWithClaims(token string) (*TokenClaims, er
 		func(t *jwt.Token) (interface{}, error) {
 			_, ok := t.Method.(*jwt.SigningMethodHMAC)
 			if !ok {
-				manager.logger.Errorf("failed to verify token")
+				manager.Logger.Errorf("failed to verify token")
 				return nil, errors.New("failed to verify token")
 			}
 
@@ -39,21 +39,21 @@ func (manager *JWTManager) VerifyTokenWithClaims(token string) (*TokenClaims, er
 		},
 	)
 	if err != nil {
-		manager.logger.Errorf("invalid token: %v", err)
+		manager.Logger.Errorf("invalid token: %v", err)
 		return nil, errors.New("invalid token")
 	}
 
 	claims, ok := tokenJWT.Claims.(*TokenClaims)
 	if !ok {
-		manager.logger.Errorf("invalid token claims")
+		manager.Logger.Errorf("invalid token claims")
 		return nil, errors.New("invalid token")
 	}
 	return claims, nil
 }
 
-func ExtractToken(bearerToken string, logger *log.Logger) (string, error) {
+func ExtractToken(bearerToken string, Logger *log.Logger) (string, error) {
 	if !strings.HasPrefix(bearerToken, "Bearer ") {
-		logger.Errorf("failed to extract token: invalid format")
+		Logger.Errorf("failed to extract token: invalid format")
 		return "", errors.New("invalid token format")
 	}
 

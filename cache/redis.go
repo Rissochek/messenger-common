@@ -18,16 +18,16 @@ type BlacklistManager interface {
 
 type RedisManager struct {
 	RedisClient *redis.Client
-	logger *log.Logger
+	Logger *log.Logger
 }
 
-func NewRedisManager(logger *log.Logger) *RedisManager {
+func NewRedisManager(Logger *log.Logger) *RedisManager {
 	redis_host := utils.GetKeyFromEnv("REDIS_HOST")
 	redis_port := utils.GetKeyFromEnv("REDIS_PORT")
 	redis_password := utils.GetKeyFromEnv("REDIS_PASSWORD")
 	redis_db_num, err := strconv.Atoi(utils.GetKeyFromEnv("REDIS_DB_NUM"))
 	if err != nil {
-		logger.Fatalf("invalid redis_db_num: %v", err)
+		Logger.Fatalf("invalid redis_db_num: %v", err)
 	}
 
 	client := redis.NewClient(&redis.Options{
@@ -43,7 +43,7 @@ func NewRedisManager(logger *log.Logger) *RedisManager {
 func (RedisManager *RedisManager) AddToBlacklist(token string, expiry int64, ctx context.Context) error {
 	exparation_time := time.Duration(expiry-time.Now().Unix()) * time.Second
 	if err := RedisManager.RedisClient.Set(ctx, token, "revoked", exparation_time); err.Err() != nil {
-		RedisManager.logger.Errorf("failed to add token to blacklist: %v", err.Err())
+		RedisManager.Logger.Errorf("failed to add token to blacklist: %v", err.Err())
 		return err.Err()
 	}
 
@@ -57,11 +57,11 @@ func (RedisManager *RedisManager) BlacklistCheck(ctx context.Context, token stri
 		return false, nil
 	}
 	if err != nil{
-		RedisManager.logger.Errorf("failed to get token: %v", err)
+		RedisManager.Logger.Errorf("failed to get token: %v", err)
 		return false, fmt.Errorf("failed to check token blacklisted")
 	}
 	if result == "revoked" {
-		RedisManager.logger.Errorf("token is revoked")
+		RedisManager.Logger.Errorf("token is revoked")
 		return true, nil
 	}
 
