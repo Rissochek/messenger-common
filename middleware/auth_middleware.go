@@ -9,7 +9,7 @@ import (
 )
 
 type Verifier interface {
-	VerifyToken(token string) (*auth.TokenClaims, error)
+	VerifyTokenWithClaims(token string) (*auth.TokenClaims, error)
 }
 
 type BlacklistChecker interface {
@@ -53,7 +53,7 @@ func (middleware *TokenValidateMiddleware) ValidateToken(context *gin.Context) {
 		return
 	}
 
-	claims, err := middleware.Verifier.VerifyToken(token)
+	claims, err := middleware.Verifier.VerifyTokenWithClaims(token)
 	if err != nil {
 		context.JSON(401, gin.H{"error": "token is invalid"})
 		context.Abort()
