@@ -19,11 +19,11 @@ type BlacklistChecker interface {
 type TokenValidateMiddleware struct {
 	Verifier
 	BlacklistChecker
-	logger *log.Logger
+	Logger *log.Logger
 }
 
-func NewTokenValidateMiddleware(verifier Verifier, blacklist BlacklistChecker) *TokenValidateMiddleware {
-	return &TokenValidateMiddleware{Verifier: verifier, BlacklistChecker: blacklist}
+func NewTokenValidateMiddleware(verifier Verifier, blacklist BlacklistChecker, logger *log.Logger) *TokenValidateMiddleware {
+	return &TokenValidateMiddleware{Verifier: verifier, BlacklistChecker: blacklist, Logger: logger }
 }
 
 func (middleware *TokenValidateMiddleware) ValidateToken(context *gin.Context) {
@@ -34,7 +34,7 @@ func (middleware *TokenValidateMiddleware) ValidateToken(context *gin.Context) {
 		return
 	}
 
-	token, err := auth.ExtractToken(bearerToken, middleware.logger)
+	token, err := auth.ExtractToken(bearerToken, middleware.Logger)
 	if err != nil {
 		context.JSON(401, gin.H{"error": "token format is invalid"})
 		context.Abort()
